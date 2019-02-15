@@ -52,7 +52,7 @@ class Login extends PureComponent {
               )}
             </FormItem>
             <FormItem hasFeedback>
-              {getFieldDecorator('pwd', {
+              {getFieldDecorator('password', {
                 rules: [
                   {
                     required: true,

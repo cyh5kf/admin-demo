@@ -9,7 +9,7 @@ import { CANCEL_REQUEST_MESSAGE } from 'utils/constant'
 import api from 'api'
 import config from 'config'
 
-const { queryReportdirs, logoutUser } = api
+const { queryRouteList, logoutUser, queryUserInfo } = api
 
 export default {
   namespace: 'app',
@@ -18,13 +18,15 @@ export default {
     permissions: {
       visit: [],
     },
-    routeList: [{
-      id: '1',
-      icon: 'laptop',
-      name: 'Reportdirs',
-      zhName: '主题报表',
-      router: '/reportdirs',
-    }],
+    routeList: [
+      {
+        id: '1',
+        icon: 'laptop',
+        name: 'Dashboard',
+        zhName: '仪表盘',
+        router: '/dashboard',
+      },
+    ],
     locationPathname: '',
     locationQuery: {},
     theme: store.get('theme') || 'light',
@@ -72,31 +74,35 @@ export default {
   },
   effects: {
     *query({ payload }, { call, put, select }) {
-      const { locationPathname, routeList } = yield select(_ => _.app)
-      const data = yield call(queryReportdirs);
-      debugger
-      if (data.status === 1) {
-        let resdata = data.resdata;
-        resdata.forEach((item,index) => {
-          routeList.push({
-            id: `1${index+1}`,
-            icon: '',
-            breadcrumbParentId: '1',
-            menuParentId: '1',
-            name: item.res_clname,
-            zhName: item.res_clname,
-            route: `/reportdirs/${item.res_id}`,
+      const { success, user } = yield call(queryUserInfo, payload)
+      const { locationPathname } = yield select(_ => _.app)
+
+      if (success && user) {
+        const { list } = yield call(queryRouteList)
+        const { permissions } = user
+        let routeList = list
+        if (
+          permissions.role === ROLE_TYPE.ADMIN ||
+          permissions.role === ROLE_TYPE.DEVELOPER
+        ) {
+          permissions.visit = list.map(item => item.id)
+        } else {
+          routeList = list.filter(item => {
+            const cases = [
+              permissions.visit.includes(item.id),
+              item.mpid
+                ? permissions.visit.includes(item.mpid) || item.mpid === '-1'
+                : true,
+              item.bpid ? permissions.visit.includes(item.bpid) : true,
+            ]
+            return cases.every(_ => _)
           })
-        })
+        }
         yield put({
           type: 'updateState',
           payload: {
-            routeList,
-          },
-        })
-        yield put({
-          type: 'updateState',
-          payload: {
+            user,
+            permissions,
             routeList,
           },
         })
@@ -127,9 +133,9 @@ export default {
               {
                 id: '1',
                 icon: 'laptop',
-                name: 'User',
+                name: 'Dashboard',
                 zhName: '仪表盘',
-                router: '/user',
+                router: '/dashboard',
               },
             ],
           },

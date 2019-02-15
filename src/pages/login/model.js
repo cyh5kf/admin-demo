@@ -1,7 +1,7 @@
 import { router, pathMatchRegexp } from 'utils'
 import api from 'api'
 
-const { loginUser } = api
+const { login } = api
 
 export default {
   namespace: 'login',
@@ -10,7 +10,7 @@ export default {
 
   effects: {
     *login({ payload }, { put, call, select }) {
-      const data = yield call(loginUser, payload)
+      const data = yield call(login, payload)
       const { locationQuery } = yield select(_ => _.app)
       if (data.success) {
         const user_token = data.user_token;

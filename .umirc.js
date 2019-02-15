@@ -72,19 +72,19 @@ export default {
   // https://ant.design/docs/react/customize-theme
   theme: './config/theme.config.js',
   // Webpack Configuration
-  // proxy: {
-  //   '/api/v1/weather': {
-  //     target: 'https://api.seniverse.com/',
-  //     changeOrigin: true,
-  //     pathRewrite: { '^/api/v1/weather': '/v3/weather' },
-  //   },
-  // },
   proxy: {
-    '/DAP': {
-      target: 'http://192.168.241.138:8001/',
+    '/api/v1/weather': {
+      target: 'https://api.seniverse.com/',
       changeOrigin: true,
+      pathRewrite: { '^/api/v1/weather': '/v3/weather' },
     },
   },
+  // proxy: {
+  //   '/DAP': {
+  //     target: 'http://192.168.241.138:8001/',
+  //     changeOrigin: true,
+  //   },
+  // },
   alias: {
     api: resolve(__dirname, './src/services/'),
     components: resolve(__dirname, './src/components'),
